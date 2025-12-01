@@ -55,8 +55,14 @@ endif()
 include(FetchContent)
 
 # Fetch nlohmann/json
-FetchContent_Declare(json URL https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.zip)
-FetchContent_MakeAvailable(json)
+find_package(nlohmann_json QUIET)
+if (nlohmann_json_FOUND)
+    message(STATUS "nlohmann_json found: ${nlohmann_json_VERSION}")
+else()
+    message(STATUS "nlohmann_json not found, fetching via FetchContent")
+    FetchContent_Declare(json URL https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.zip)
+    FetchContent_MakeAvailable(json)
+endif()
 target_link_libraries(minja INTERFACE nlohmann_json::nlohmann_json)
 
 if(MINJA_TEST_ENABLED)
