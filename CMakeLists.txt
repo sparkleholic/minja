@@ -115,20 +115,39 @@ if(CPPCHECK)
 endif()
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 target_include_directories(minja INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+# Install header files
 install(FILES
   ${PROJECT_SOURCE_DIR}/include/minja/minja.hpp
   ${PROJECT_SOURCE_DIR}/include/minja/chat-template.hpp
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/minja
 )
-install(
-  TARGETS minja
-  EXPORT "${TARGETS_EXPORT_NAME}"
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/minja  # for downstream projects
+
+# Generate and install package config files
+# Note: We don't use install(EXPORT) because nlohmann_json is fetched via FetchContent
+# and not part of our export set. Instead, the config file creates the imported target directly.
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/minja-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/minja-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minja
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/minja-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/minja-config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/minja-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minja
 )
 
 if(MINJA_EXAMPLE_ENABLED)

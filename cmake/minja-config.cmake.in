@@ -1,0 +1,15 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(nlohmann_json)
+
+# Create the imported target for minja (header-only library)
+if(NOT TARGET minja::minja)
+    add_library(minja::minja INTERFACE IMPORTED)
+    set_target_properties(minja::minja PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@"
+        INTERFACE_LINK_LIBRARIES "nlohmann_json::nlohmann_json"
+    )
+endif()
+
+check_required_components(minja)
